@@ -1,0 +1,253 @@
+- table:
+    schema: auth
+    name: account_providers
+  object_relationships:
+  - name: account
+    using:
+      foreign_key_constraint_on: account_id
+  - name: provider
+    using:
+      foreign_key_constraint_on: auth_provider
+- table:
+    schema: auth
+    name: account_roles
+  object_relationships:
+  - name: account
+    using:
+      foreign_key_constraint_on: account_id
+  - name: roleByRole
+    using:
+      foreign_key_constraint_on: role
+- table:
+    schema: auth
+    name: accounts
+  object_relationships:
+  - name: role
+    using:
+      foreign_key_constraint_on: default_role
+  array_relationships:
+  - name: account_providers
+    using:
+      foreign_key_constraint_on:
+        column: account_id
+        table:
+          schema: auth
+          name: account_providers
+  - name: account_roles
+    using:
+      foreign_key_constraint_on:
+        column: account_id
+        table:
+          schema: auth
+          name: account_roles
+  - name: refresh_tokens
+    using:
+      foreign_key_constraint_on:
+        column: account_id
+        table:
+          schema: auth
+          name: refresh_tokens
+- table:
+    schema: auth
+    name: providers
+  array_relationships:
+  - name: account_providers
+    using:
+      foreign_key_constraint_on:
+        column: auth_provider
+        table:
+          schema: auth
+          name: account_providers
+- table:
+    schema: auth
+    name: refresh_tokens
+  object_relationships:
+  - name: account
+    using:
+      foreign_key_constraint_on: account_id
+- table:
+    schema: auth
+    name: roles
+  array_relationships:
+  - name: account_roles
+    using:
+      foreign_key_constraint_on:
+        column: role
+        table:
+          schema: auth
+          name: account_roles
+  - name: accounts
+    using:
+      foreign_key_constraint_on:
+        column: default_role
+        table:
+          schema: auth
+          name: accounts
+- table:
+    schema: public
+    name: biopsies
+  array_relationships:
+  - name: biopsy_practitioners
+    using:
+      foreign_key_constraint_on:
+        column: biopsy_id
+        table:
+          schema: public
+          name: biopsy_practitioner
+- table:
+    schema: public
+    name: biopsy_practitioner
+  object_relationships:
+  - name: biopsy
+    using:
+      foreign_key_constraint_on: biopsy_id
+  - name: practitioner
+    using:
+      foreign_key_constraint_on: practitioner_id
+- table:
+    schema: public
+    name: cytologies
+  array_relationships:
+  - name: cytology_practitioners
+    using:
+      foreign_key_constraint_on:
+        column: cytology_id
+        table:
+          schema: public
+          name: cytology_practitioner
+- table:
+    schema: public
+    name: cytology_practitioner
+  object_relationships:
+  - name: cytology
+    using:
+      foreign_key_constraint_on: cytology_id
+  - name: practitioner
+    using:
+      foreign_key_constraint_on: practitioner_id
+- table:
+    schema: public
+    name: municipalities
+  object_relationships:
+  - name: province
+    using:
+      foreign_key_constraint_on: province_id
+  array_relationships:
+  - name: patients
+    using:
+      foreign_key_constraint_on:
+        column: municipality_id
+        table:
+          schema: public
+          name: patients
+- table:
+    schema: public
+    name: necropsies
+  array_relationships:
+  - name: necropsy_practitioners
+    using:
+      foreign_key_constraint_on:
+        column: necropsy_id
+        table:
+          schema: public
+          name: necropsy_practitioner
+- table:
+    schema: public
+    name: necropsy_practitioner
+  object_relationships:
+  - name: necropsy
+    using:
+      foreign_key_constraint_on: necropsy_id
+  - name: practitioner
+    using:
+      foreign_key_constraint_on: practitioner_id
+- table:
+    schema: public
+    name: patients
+  object_relationships:
+  - name: municipality
+    using:
+      foreign_key_constraint_on: municipality_id
+  computed_fields:
+  - name: age
+    definition:
+      function:
+        schema: public
+        name: calc_age
+    comment: ""
+  - name: full_name
+    definition:
+      function:
+        schema: public
+        name: patient_full_name
+    comment: ""
+- table:
+    schema: public
+    name: practitioners
+  object_relationships:
+  - name: qualification
+    using:
+      foreign_key_constraint_on: qualification_id
+  array_relationships:
+  - name: biopsy_practitioners
+    using:
+      foreign_key_constraint_on:
+        column: practitioner_id
+        table:
+          schema: public
+          name: biopsy_practitioner
+  - name: cytology_practitioners
+    using:
+      foreign_key_constraint_on:
+        column: practitioner_id
+        table:
+          schema: public
+          name: cytology_practitioner
+  - name: necropsy_practitioners
+    using:
+      foreign_key_constraint_on:
+        column: practitioner_id
+        table:
+          schema: public
+          name: necropsy_practitioner
+  computed_fields:
+  - name: full_name
+    definition:
+      function:
+        schema: public
+        name: practitioner_full_name
+    comment: ""
+- table:
+    schema: public
+    name: provinces
+  array_relationships:
+  - name: municipalities
+    using:
+      foreign_key_constraint_on:
+        column: province_id
+        table:
+          schema: public
+          name: municipalities
+- table:
+    schema: public
+    name: qualifications
+  array_relationships:
+  - name: practitioners
+    using:
+      foreign_key_constraint_on:
+        column: qualification_id
+        table:
+          schema: public
+          name: practitioners
+- table:
+    schema: public
+    name: users
+  object_relationships:
+  - name: account
+    using:
+      manual_configuration:
+        remote_table:
+          schema: auth
+          name: accounts
+        column_mapping:
+          id: user_id
